@@ -11,6 +11,7 @@ import { CircularProgress } from 'material-ui/Progress';
 
 // components
 import Navbar from './Navbar';
+import Filters from './Filters';
 
 // icons
 import VictoryIcon from '../trophy.svg';
@@ -21,11 +22,10 @@ const styles = theme => ({
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     overflow: 'hidden',
-    margin: '64px auto 0',
   },
   gridList: {
     width: '1024px',
-    height: '100vh',
+    height: 'calc(100vh - 50px)',
   },
   subheader: {
     width: '100%',
@@ -51,12 +51,18 @@ class DriversOverview extends React.Component {
     super(props, context);
 
     this.state = {
-        highlighted: '',
+      highlighted: '',
+      filtersOpen: false,
+      filters: {
+        name: '',
+        season: 0,
+      }
     }
 
     this.getSize         = this.getSize.bind(this);
     this.handleHiglight  = this.handleHiglight.bind(this);
     this.highlightDriver = this.highlightDriver.bind(this);
+    this.applyFilters    = this.applyFilters.bind(this);
   }
 
   componentDidMount() {
@@ -93,31 +99,67 @@ class DriversOverview extends React.Component {
   }
 
   highlightDriver(driver) {
-    const { highlighted, } = this.state;
+    const { highlighted, filters, } = this.state;
+    const matched          = this.matchFilters(driver);
+    const filterActive     = !!filters.name || !!filters.season;
+    let classNames         = '';
+
+    if (filters.name || filters.season)
+      classNames += matched ? 'highlighted' : 'fade-out';
 
     switch (highlighted) {
       case 'winners':
-        return driver.worldChampion ? 'highlighted' : 'fade-out';
+          classNames += driver.worldChampion && matched ? ' winner' : ' fade-out';
 
+        if (!filterActive)
+          classNames = driver.worldChampion ? 'highlighted winner' : 'fade-out';
+
+        break;
       case 'loosers':
-        return driver.victories === 0 ? 'highlighted loosers' : 'fade-out';
+          classNames += driver.victories === 0 && matched ? ' loosers' : ' fade-out';
 
-      default: return ''
+        if (!filterActive)
+          classNames = driver.victories === 0 ? 'highlighted loosers' : 'fade-out';
+
+        break;
+      default: classNames += '';
     }
+
+    return classNames;
   }
+
+  applyFilters = filters => this.setState({ filters, });
+
+  matchFilters = driver => {
+    const { name, season, } = this.state.filters;
+    const nameMatch = !!name && `${driver.givenName.toLowerCase()} ${driver.familyName.toLowerCase()}`.includes(name.toLowerCase())
+    const seasonMatch = !!driver.joinedDate && season !== 0 && driver.joinedDate >= season
+
+    if (!name)
+      return seasonMatch
+
+    if (!driver.joinedDate)
+      return nameMatch
+
+    return nameMatch && seasonMatch
+  }
+
+  toggleFilters = open => () => this.setState({ filtersOpen: open, });
 
   render() {
     const { drivers, classes, loading, } = this.props;
-    const { highlighted, } = this.state;
+    const { highlighted, filtersOpen, } = this.state;
 
     return (
       <div  className="drivers-overview-container">
-        <Navbar handleHiglight={this.handleHiglight} highlighted={highlighted}/>
+        <Navbar handleHiglight={this.handleHiglight} highlighted={highlighted} toggleFilters={this.toggleFilters}/>
+        <Filters toggleFilters={this.toggleFilters} applyFilters={this.applyFilters} open={filtersOpen} />
+
         <div className={classes.root}>
           {loading ?
             <CircularProgress size={15} />
 
-            : <GridList cellHeight={200} className={classes.gridList} cols={3}>
+            : <GridList cellHeight={200} className={ClassNames(classes.gridList, 'drivers-container')} cols={3}>
             {drivers.map(driver => (
               <GridListTile
                 className={ClassNames(classes.tile, this.highlightDriver(driver))}
@@ -155,7 +197,15 @@ class DriversOverview extends React.Component {
 
 DriversOverview.propTypes = {
   loading: PropTypes.bool.isRequired,
-  drivers: PropTypes.array.isRequired,
+  drivers: PropTypes.arrayOf(PropTypes.shape({
+    driverId: PropTypes.string.isRequired,
+    givenName: PropTypes.string.isRequired,
+    familyName: PropTypes.string.isRequired,
+    nationality: PropTypes.string.isRequired,
+    victories: PropTypes.number,
+    worldChampion: PropTypes.bool,
+    joinedDate: PropTypes.number,
+  })).isRequired,
   total: PropTypes.number.isRequired,
   offset: PropTypes.number.isRequired,
   fetchDrivers: PropTypes.func.isRequired,
