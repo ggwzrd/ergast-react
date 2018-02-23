@@ -1,3 +1,6 @@
-.right-buttons {
-  float: right;
+.title-container {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
 }
