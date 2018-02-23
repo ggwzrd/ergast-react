@@ -1,12 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import ClassNames from 'classnames';
 
 // material-ui
 import { withStyles } from 'material-ui/styles';
 import GridList, { GridListTile, GridListTileBar } from 'material-ui/GridList';
-import Subheader from 'material-ui/List/ListSubheader';
+import Badge from 'material-ui/Badge';
 import IconButton from 'material-ui/IconButton';
-import InfoIcon from 'material-ui-icons/Info';
+import { CircularProgress } from 'material-ui/Progress';
+
+// components
+import Navbar from './Navbar';
+
+// icons
+import VictoryIcon from '../trophy.svg';
 
 const styles = theme => ({
   root: {
@@ -14,14 +21,28 @@ const styles = theme => ({
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     overflow: 'hidden',
-    backgroundColor: theme.palette.background.paper,
+    margin: '64px auto 0',
   },
   gridList: {
-    width: '100vw',
+    width: '1024px',
     height: '100vh',
   },
   subheader: {
     width: '100%',
+  },
+   badge: {
+     position: 'absolute',
+     top: '15px',
+     left: '10px',
+   },
+   tile: {
+    position: 'relative',
+  },
+
+  rootTop: {
+    background:
+    'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, ' +
+    'rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
   },
 });
 
@@ -29,7 +50,13 @@ class DriversOverview extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this.state = {
+        highlighted: '',
+    }
 
+    this.getSize         = this.getSize.bind(this);
+    this.handleHiglight  = this.handleHiglight.bind(this);
+    this.highlightDriver = this.highlightDriver.bind(this);
   }
 
   componentDidMount() {
@@ -38,34 +65,88 @@ class DriversOverview extends React.Component {
     fetchDrivers();
   }
 
-  componentDidUpdate() {
-    const { drivers, } = this.props;
+  componentDidUpdate(prevProps) {
+    const {
+      drivers,
+      fetchResults,
+      fetchChampionshipWinners,
+    } = this.props;
 
-    console.log(drivers);
+    if (prevProps.drivers.length !== drivers.length) {
+      fetchResults();
+      fetchChampionshipWinners();
+    }
+
+  }
+
+  handleHiglight = highlighted => () => this.setState({
+    highlighted: this.state.highlighted !== highlighted ? highlighted : null,
+  });
+
+  getSize(victories) {
+    // if (victories > 10)
+    //   return 3;
+    // if (victories > 5)
+    //   return 2;
+
+    return 1;
+  }
+
+  highlightDriver(driver) {
+    const { highlighted, } = this.state;
+
+    switch (highlighted) {
+      case 'winners':
+        return driver.worldChampion ? 'highlighted' : 'fade-out';
+
+      case 'loosers':
+        return driver.victories === 0 ? 'highlighted loosers' : 'fade-out';
+
+      default: return ''
+    }
   }
 
   render() {
-    const { drivers, classes, } = this.props;
-    // https://source.unsplash.com/collection/887947/
+    const { drivers, classes, loading, } = this.props;
+    const { highlighted, } = this.state;
+
     return (
       <div  className="drivers-overview-container">
+        <Navbar handleHiglight={this.handleHiglight} highlighted={highlighted}/>
         <div className={classes.root}>
-          <GridList cellHeight={360} className={classes.gridList} cols={3}>
+          {loading ?
+            <CircularProgress size={15} />
+
+            : <GridList cellHeight={200} className={classes.gridList} cols={3}>
             {drivers.map(driver => (
-              <GridListTile key={driver.driverId} cols={driver.wins || 1}>
-                <img src={`https://source.unsplash.com/300x200/?ferrari,${driver.familyName}`} alt={driver.name} />
+              <GridListTile
+                className={ClassNames(classes.tile, this.highlightDriver(driver))}
+                key={driver.driverId}
+                cols={this.getSize(driver.victories)}
+                rows={(this.getSize(driver.victories) - 1) || 1}
+              >
+                <img src={`https://source.unsplash.com/${this.getSize(driver.victories) * 300}x${this.getSize(driver.victories) * 200}/?${driver.familyName},ferrari,car`} alt={driver.name} />
                 <GridListTileBar
-                  title={`${driver.familyName} ${driver.givenName}`}
+                  className={classes.rootTop}
+                  title={`${driver.givenName} ${driver.familyName}`}
                   subtitle={<span>{driver.nationality}</span>}
-                  actionIcon={
+                  titlePosition="top"
+                  actionIcon={loading ?
                     <IconButton className={classes.icon}>
-                      <InfoIcon />
+                      <CircularProgress size={40} />
                     </IconButton>
-                  }
+                    : null}
                 />
+                <Badge
+                  className={classes.badge}
+                  badgeContent={typeof driver.victories === 'number' ? driver.victories : <CircularProgress size={15} />}
+                  color="secondary">
+
+                  <img src={VictoryIcon} className="trophy" alt={`${driver.familyName} victories`}/>
+                </Badge>
               </GridListTile>
             ))}
-          </GridList>
+          </GridList>}
         </div>
       </div>
     )
@@ -73,6 +154,7 @@ class DriversOverview extends React.Component {
 };
 
 DriversOverview.propTypes = {
+  loading: PropTypes.bool.isRequired,
   drivers: PropTypes.array.isRequired,
   total: PropTypes.number.isRequired,
   offset: PropTypes.number.isRequired,
