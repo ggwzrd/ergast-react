@@ -35,7 +35,7 @@ class Navbar extends React.Component {
     const { handleHiglight, highlighted, classes, toggleFilters, } = this.props;
 
     return (
-      <AppBar position="fixed" color="primary">
+      <AppBar position="fixed" color="primary" className="navbar">
         <Toolbar className={classes.root}>
           <div className="title-container">
             <Tooltip id="tooltip-filters" title="Filters" placement="bottom">
