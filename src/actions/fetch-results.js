@@ -2,22 +2,28 @@ import request from 'axios';
 
 export const RESULTS_FETCHED = 'RESULTS_FETCHED';
 
-export const resultsFetched = (data) => ({
+export const resultsFetched = (winners) => ({
   type: RESULTS_FETCHED,
-  payload: data,
+  payload: winners,
 });
+
+const getWinners = (races) => {
+  return races.map((race) => race.Results[0].Driver);
+}
 
 export default () => {
   return dispatch => {
     request({
       method: 'GET',
-      url: `https://ergast.com/api/f1/constructors/ferrari/results/1`,
+      url: 'https://ergast.com/api/f1/constructors/ferrari/results/1.json?limit=300',
       responseType: 'json',
     })
       .then((res) => {
-        console.log(res);
-        debugger
-        dispatch(resultsFetched(res.data));
+        const data    = res.data.MRData;
+        const races   = data.RaceTable.Races
+        const winners = getWinners(races);
+
+        dispatch(resultsFetched(winners));
       })
       .catch(console.warn);
   }
