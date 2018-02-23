@@ -128,7 +128,7 @@ class DriversOverview extends React.Component {
     return classNames;
   }
 
-  applyFilters = filters => this.setState({ filters, });
+  applyFilters = filters => this.setState({ filters, filtersOpen: false, });
 
   matchFilters = driver => {
     const { name, season, } = this.state.filters;
@@ -138,17 +138,17 @@ class DriversOverview extends React.Component {
     if (!name)
       return seasonMatch
 
-    if (!driver.joinedDate)
+    if (!season)
       return nameMatch
 
     return nameMatch && seasonMatch
   }
 
-  toggleFilters = open => () => this.setState({ filtersOpen: open, });
+  toggleFilters = open => () => this.setState({ filtersOpen: !this.state.filtersOpen, });
 
   render() {
     const { drivers, classes, loading, } = this.props;
-    const { highlighted, filtersOpen, } = this.state;
+    const { highlighted, filtersOpen, filters, } = this.state;
 
     return (
       <div  className="drivers-overview-container">
