@@ -62,14 +62,13 @@ class Filters extends React.Component {
 
   handleApplyClick() {
     const { name, season, } = this.state;
-    const { applyFilters, toggleFilters, } = this.props;
+    const { applyFilters, } = this.props;
 
     applyFilters({ name, season, });
-    toggleFilters(false);
   }
 
   render() {
-    const { toggleFilters, open,  classes, } = this.props;
+    const { toggleFilters, open,  classes, season, name, } = this.props;
 
     return (
       <Drawer classes={{ paper: classes.paper,
@@ -91,6 +90,7 @@ class Filters extends React.Component {
             id="name"
             label="Driver name"
             type="search"
+            defaultValue={this.state.name}
             className={classes.textField}
             onChange={this.handleChange('name')}
             margin="normal"
@@ -107,7 +107,7 @@ class Filters extends React.Component {
 };
 
 Filters.propTypes = {
-  open: PropTypes.bool.isRequired,
+  name: PropTypes.string.isRequired,
   applyFilters: PropTypes.func.isRequired,
   toggleFilters: PropTypes.func.isRequired,
 }
