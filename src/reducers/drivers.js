@@ -25,14 +25,18 @@ const assignWins = (id, winners) => {
   return winners.reduce((victories, driver) => driver.driverId === id ? victories + 1 : victories, 0);
 }
 
+// identify the word champions
 const assignChampionships = (state, champions) => {
   const drivers        = state.all
+
   const updatedDrivers = drivers.map((driver) =>
     Object.assign({}, driver, {
-      wordChampion: champions.indexOf(driver.driverId) >= 0
+      worldChampion: champions.indexOf(driver.driverId) !== -1
     })
   );
-  
+
+  console.log(updatedDrivers);
+
   return Object.assign({}, state, { all: updatedDrivers, });
 }
 
