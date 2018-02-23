@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
-# GET STARTED
+# GETTING STARTED
 
 Clone `git clone git@github.com:giuliogallerini/ergast-react.git`
 
