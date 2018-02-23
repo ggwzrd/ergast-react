@@ -1,0 +1,8 @@
+.actions-container {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+}

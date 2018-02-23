@@ -10,14 +10,22 @@ import Select from 'material-ui/Select';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
 
+// styles
+import './Filters.css';
 
 const styles = theme => ({
-  root: {
+  paper: {
     maxWidth: '1024px',
+    margin: '50px auto',
+    display: 'flex',
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    alignItems: 'baseline',
   },
   formControl: {
     margin: theme.spacing.unit,
     minWidth: 120,
+    maxWidth: '50%',
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -64,7 +72,8 @@ class Filters extends React.Component {
     const { toggleFilters, open,  classes, } = this.props;
 
     return (
-      <Drawer className={classes.root} anchor="top" open={open} onClose={toggleFilters(false)}>
+      <Drawer classes={{ paper: classes.paper,
+       }} anchor="top" open={open} onClose={toggleFilters(false)}>
         <FormControl className={classes.formControl}>
           <InputLabel htmlFor="age-native-helper">From Season</InputLabel>
           <Select
