@@ -32,7 +32,6 @@ export default () => {
           const races   = data.RaceTable.Races
           const winners = getWinners(races);
 
-          console.log(races);
           dispatch(resultsFetched(winners));
           dispatch(racesSaved(races));
         })
