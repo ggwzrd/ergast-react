@@ -17,9 +17,9 @@ export default () => {
       .then((res) => {
         const data = res.data.MRData
         dispatch(driverFetched({
-          total: parseInt(data.total),
-          limit: parseInt(data.limit),
-          offset: parseInt(data.offset),
+          total: parseInt(data.total, 10),
+          limit: parseInt(data.limit, 10),
+          offset: parseInt(data.offset, 10),
           all: data.DriverTable.Drivers,
         }))
       })
