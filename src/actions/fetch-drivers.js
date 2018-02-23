@@ -11,7 +11,7 @@ export default () => {
   return dispatch => {
     request({
       method: 'GET',
-      url: `http://ergast.com/api/f1/constructors/ferrari/drivers.json`,
+      url: 'http://ergast.com/api/f1/constructors/ferrari/drivers.json?limit=300',
       responseType: 'json',
     })
       .then((res) => {
